@@ -4,12 +4,6 @@ const POKEMONS_URL = `${BASE_URL}/pokemons`
 
 const $main = document.querySelector('main')
 
-const getPokemons = () => {
-    fetch(POKEMONS_URL)
-        .then(response => response.json())
-}
-
-
 const getTrainers = () => {
     fetch(TRAINERS_URL)
     .then(response => response.json())
@@ -26,10 +20,12 @@ const createTrainerCard = (trainers) => {
         $div.classList.add('card')        
         $p.textContent = trainer.attributes.name
         $addPokemonButton.textContent = 'Add Pokemon'
+        $addPokemonButton.addEventListener('click', event => {addPokemon(trainer)})
         
         trainer.attributes.pokemons.forEach(pokemon => {
             let $li = document.createElement('li')
             let $releasePokemonButton = document.createElement('button')
+            $releasePokemonButton.addEventListener('click', event => {deletePokemon(pokemon.id)})
 
             $releasePokemonButton.classList.add('release')
             $releasePokemonButton.innerText = 'Release'
@@ -44,6 +40,33 @@ const createTrainerCard = (trainers) => {
         $div.append($p, $addPokemonButton, $ul)
         $main.appendChild($div)
     })
+}
+
+const addPokemon = (trainer) => {
+    if (trainer.attributes.pokemons.length < 6){
+        let config = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                trainer_id: trainer.id
+            })
+        }
+        fetch(POKEMONS_URL, config)
+    }
+}
+
+const deletePokemon = (id) => {
+    let config = {
+        method: 'DELETE',
+        body: JSON.stringify({
+            pokemon_id: id
+        })
+    }
+    // debugger
+    fetch(POKEMONS_URL + `/${id}`, config)
 }
 
 getTrainers()
